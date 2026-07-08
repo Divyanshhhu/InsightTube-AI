@@ -2,9 +2,14 @@ from fastapi import APIRouter, HTTPException
 
 from app.schemas.video import VideoRequest
 from app.utils.youtube import extract_video_id
+
 from app.services.transcript.service import TranscriptService
 from app.services.transcript.processor import TranscriptProcessor
+
 from app.services.rag.chunker import ChunkService
+from app.services.rag.embedder import EmbeddingService
+from app.services.rag.vectordb import VectorDBService
+
 
 router = APIRouter(
     prefix="/video",
@@ -13,7 +18,7 @@ router = APIRouter(
 
 
 @router.post("/index")
-def load_video(request: VideoRequest):
+def index_video(request: VideoRequest):
     try:
         # Extract video ID
         video_id = extract_video_id(request.url)
@@ -24,15 +29,28 @@ def load_video(request: VideoRequest):
         # Convert transcript into plain text
         text = TranscriptProcessor.to_text(transcript)
 
-        # Split into chunks
+        # Split transcript into chunks
         documents = ChunkService.split(text)
 
+        # Extract text from documents
+        texts = [doc.page_content for doc in documents]
+
+        # Generate embeddings
+        embedding_service = EmbeddingService()
+        embeddings = embedding_service.embed_documents(texts)
+
+        # Store in ChromaDB
+        vector_db = VectorDBService()
+        vector_db.add_documents(
+            documents=documents,
+            embeddings=embeddings,
+            video_id=video_id
+        )
+
         return {
-            "status": "success",
+            "status": "indexed",
             "video_id": video_id,
-            "total_characters": len(text),
-            "total_chunks": len(documents),
-            "first_chunk_preview": documents[0].page_content[:300]
+            "chunks": len(documents)
         }
 
     except Exception as e:
