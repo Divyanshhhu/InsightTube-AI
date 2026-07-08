@@ -10,6 +10,7 @@ from app.services.rag.chunker import ChunkService
 from app.services.rag.embedder import EmbeddingService
 from app.services.rag.vectordb import VectorDBService
 
+from app.services.rag.retriever import RetrieverService
 
 router = APIRouter(
     prefix="/video",
@@ -52,9 +53,23 @@ def index_video(request: VideoRequest):
             "video_id": video_id,
             "chunks": len(documents)
         }
-
+    
     except Exception as e:
         raise HTTPException(
             status_code=400,
             detail=str(e)
         )
+
+@router.get("/test-search")
+def test_search(question: str):
+
+    retriever = RetrieverService()
+
+    results = retriever.retrieve(question)
+
+    return {
+        "results": results
+    }
+
+
+   
