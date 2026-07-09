@@ -20,6 +20,10 @@ def chat(question: str):
 
     context = "\n\n".join(documents)
 
+    print("=" * 80)
+    print(context[:3000])
+    print("=" * 80)
+
     chat_service = ChatService()
 
     answer = chat_service.answer(

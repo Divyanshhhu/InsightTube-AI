@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+load_dotenv(override=True)
 
 
 class Settings:
@@ -9,3 +9,4 @@ class Settings:
 
 
 settings = Settings()
+print("Using API Key:", settings.GEMINI_API_KEY[:10])

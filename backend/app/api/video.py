@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.schemas.video import VideoRequest
 from app.utils.youtube import extract_video_id
-
+import traceback
 from app.services.transcript.service import TranscriptService
 from app.services.transcript.processor import TranscriptProcessor
 
@@ -55,6 +55,7 @@ def index_video(request: VideoRequest):
         }
     
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(
             status_code=400,
             detail=str(e)
