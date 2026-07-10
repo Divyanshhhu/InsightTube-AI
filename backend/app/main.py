@@ -14,7 +14,7 @@ app = FastAPI(
 # Allow Chrome Extension and local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # We'll restrict this later
+    allow_origins=["*"],   
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
