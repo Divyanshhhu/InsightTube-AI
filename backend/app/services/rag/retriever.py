@@ -8,15 +8,23 @@ class RetrieverService:
         self.embedding_service = EmbeddingService()
         self.vector_db = VectorDBService()
 
-    def retrieve(self, question: str, n_results: int = 5):
+    def retrieve(
+        self,
+        question: str,
+        video_id: str,
+        n_results: int = 5
+    ):
 
-        # Convert question into embedding
+        # Embed the user's question
         query_embedding = self.embedding_service.embed_query(question)
 
-        # Search ChromaDB
+        # Search only inside the current video's chunks
         results = self.vector_db.collection.query(
             query_embeddings=[query_embedding],
-            n_results=n_results
+            n_results=n_results,
+            where={
+                "video_id": video_id
+            }
         )
 
         return results

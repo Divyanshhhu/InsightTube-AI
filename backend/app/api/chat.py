@@ -1,7 +1,9 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
 
 from app.services.rag.retriever import RetrieverService
 from app.services.chat.chat_service import ChatService
+
 
 router = APIRouter(
     prefix="/chat",
@@ -9,38 +11,42 @@ router = APIRouter(
 )
 
 
-@router.get("/")
-def chat(question: str):
+class ChatRequest(BaseModel):
+    video_id: str
+    question: str
+
+
+@router.post("/")
+def chat(request: ChatRequest):
 
     retriever = RetrieverService()
 
-    results = retriever.retrieve(question)
+    results = retriever.retrieve(
+        question=request.question,
+        video_id=request.video_id
+    )
 
     documents = results["documents"][0]
 
     context = "\n\n".join(documents)
 
-    print("=" * 80)
-    print(context[:3000])
-    print("=" * 80)
-
     chat_service = ChatService()
 
     answer = chat_service.answer(
         context=context,
-        question=question
+        question=request.question
     )
 
     return {
-    "answer": answer,
-    "sources": [
-        {
-            "chunk": metadata["chunk"],
-            "score": round(distance, 3)
-        }
-        for metadata, distance in zip(
-            results["metadatas"][0],
-            results["distances"][0]
-        )
-    ]
-}
+        "answer": answer,
+        "sources": [
+            {
+                "chunk": metadata["chunk"],
+                "score": round(distance, 3)
+            }
+            for metadata, distance in zip(
+                results["metadatas"][0],
+                results["distances"][0]
+            )
+        ]
+    }

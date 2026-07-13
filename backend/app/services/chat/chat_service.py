@@ -12,17 +12,23 @@ class ChatService:
     def answer(self, context: str, question: str):
 
         prompt = f"""
-You are InsightTube AI, an assistant that answers questions only using the provided YouTube transcript.
+You are InsightTube AI.
+
+Answer ONLY using the provided transcript.
 
 Rules:
-1. Answer ONLY from the provided context.
-2. If the answer is not present, reply:
-   "I couldn't find that information in this video."
-3. Keep the answer concise.
-4. Use bullet points whenever appropriate.
-5. Do not make up information.
+- Do not use outside knowledge.
+- If the answer is not in the transcript, say:
+  "I couldn't find that information in this video."
+- Be concise and clear.
+- Use markdown.
+- Use bullet points whenever appropriate.
+- If explaining a concept, explain it simply.
+- Do not say "Based on the provided transcript".
+- Do not mention the context or transcript.
+- Answer as if you watched the video yourself.
 
-Context:
+Transcript:
 {context}
 
 Question:
@@ -30,7 +36,7 @@ Question:
 """
 
         response = self.client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.5-flash",
             contents=prompt
         )
 

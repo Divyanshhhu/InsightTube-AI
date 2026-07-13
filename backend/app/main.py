@@ -5,6 +5,7 @@ from app.api.video import router as video_router
 from app.api import chat
 from app.api import notes
 from app.api import pdf
+from app.api import status
 
 app = FastAPI(
     title="InsightTube AI",
@@ -24,7 +25,7 @@ app.include_router(video_router)
 app.include_router(chat.router)
 app.include_router(notes.router)
 app.include_router(pdf.router)
-
+app.include_router(status.router)
 
 @app.get("/")
 def root():
