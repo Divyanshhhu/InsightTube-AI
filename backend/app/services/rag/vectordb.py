@@ -13,6 +13,10 @@ class VectorDBService:
             name="youtube_videos"
         )
 
+        self.notes_collection = self.client.get_or_create_collection(
+            name="video_notes"
+        )
+
     def add_documents(
         self,
         documents,
@@ -38,3 +42,29 @@ class VectorDBService:
                 for i in range(len(documents))
             ]
         )
+
+    def save_notes(self, video_id: str, notes: str):
+
+    # Remove old notes if they exist
+        try:
+            self.notes_collection.delete(ids=[video_id])
+        except Exception:
+            pass
+
+        self.notes_collection.add(
+            ids=[video_id],
+            documents=[notes],
+            metadatas=[{"video_id": video_id}]
+        )
+
+
+    def get_notes(self, video_id: str):
+
+        result = self.notes_collection.get(
+            ids=[video_id]
+        )
+
+        if result["documents"]:
+            return result["documents"][0]
+
+        return None
