@@ -14,7 +14,8 @@ router = APIRouter(
 class ChatRequest(BaseModel):
     video_id: str
     question: str
-
+    temperature: float = 0.7
+    system_prompt: str = ""
 
 @router.post("/")
 def chat(request: ChatRequest):
@@ -34,7 +35,9 @@ def chat(request: ChatRequest):
 
     answer = chat_service.answer(
         context=context,
-        question=request.question
+        question=request.question,
+        temperature=request.temperature,
+        system_prompt=request.system_prompt
     )
 
     return {

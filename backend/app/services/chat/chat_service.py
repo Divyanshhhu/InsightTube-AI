@@ -1,6 +1,6 @@
 from google import genai
 from app.config import settings
-
+from google.genai import types
 
 class ChatService:
 
@@ -9,9 +9,17 @@ class ChatService:
             api_key=settings.GEMINI_API_KEY
         )
 
-    def answer(self, context: str, question: str):
+    def answer(
+        self,
+        context: str,
+        question: str,
+        temperature: float = 0.7,
+        system_prompt: str = ""
+    ):
 
         prompt = f"""
+{system_prompt}
+
 You are InsightTube AI.
 
 Answer ONLY using the provided transcript.
@@ -36,8 +44,11 @@ Question:
 """
 
         response = self.client.models.generate_content(
-            model="gemini-3.5-flash",
-            contents=prompt
+            model="gemini-flash-latest",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=temperature
+            )
         )
 
         return response.text

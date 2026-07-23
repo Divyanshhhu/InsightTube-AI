@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-
+from fastapi import HTTPException
 from app.schemas.notes import NotesRequest
 from app.services.notes.notes_service import NotesService
 from app.services.rag.vectordb import VectorDBService
@@ -31,8 +31,14 @@ def generate_notes(request: NotesRequest):
             "video_id": request.video_id
         }
     )
-
+    print(results)
+    
     documents = results["documents"]
+    if not documents:
+        raise HTTPException(
+            status_code=404,
+            detail="Video is not indexed. Please index it first."
+        )
 
     transcript = "\n\n".join(documents)
 
@@ -50,4 +56,22 @@ def generate_notes(request: NotesRequest):
     return {
         "notes": notes,
         "cached": False
+    }
+
+@router.get("/{video_id}")
+def get_notes(video_id: str):
+
+    vector_db = VectorDBService()
+
+    notes = vector_db.get_notes(video_id)
+
+    if notes:
+
+        return {
+            "exists": True,
+            "notes": notes
+        }
+
+    return {
+        "exists": False
     }
